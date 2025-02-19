@@ -1,0 +1,88 @@
+# This is the OpenAPI specification for your service. It is used to generate the client code.
+# To generate the server code, use the Gradle task `openApiGenerate`. The
+# generated code will be placed in `build/generate-resources/main`.
+#
+# We will evaluate you based on how well you design your API.
+# 1. How well it follows REST principles.
+# 2. How easy it is to understand and use.
+#
+# References
+# 1. https://swagger.io/specification/
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: User Service
+  license:
+    name: MIT
+servers:
+  - url: http://localhost
+paths:
+  /estate:
+    post:
+      summary: Create a new estate
+      requestBody:
+        description: Input length and width of the estate
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PostEstateRequest"
+      responses:
+        200:
+          description: Success create a new estate
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UuidResponse"
+        400:
+          description: Bad request on body request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+components:
+  schemas:
+    EstateModel:
+      type: object
+      properties:
+        length:
+          type: integer
+        width:
+          type: integer
+        uuid:
+          type: string
+    TreeModel:
+      type: object
+      properties:
+        uuid:
+          type: string
+        x:
+          type: integer
+        y:
+          type: integer
+        height:
+          type: integer
+    UuidResponse:
+      required:
+        - uuid
+      type: object
+      properties:
+        uuid:
+          type: string
+    ErrorResponse:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+    PostEstateRequest:
+      type: object
+      required:
+        - length
+        - width
+      properties:
+        length:
+          type: integer
+        width:
+          type: integer
