@@ -1,17 +1,37 @@
 package handler
 
 import (
+	"github.com/SawitProRecruitment/UserService/generated"
+	"github.com/SawitProRecruitment/UserService/repository"
 	"github.com/labstack/echo/v4"
 )
 
-func (s *Server) PostEstate(ctx echo.Context) error {
-	est := new(PostEstateJSONRequestBody)
-	if err := ctx.Bind(est); err != nil {
-		return ctx.JSON(400, BadRequestError(err.Error()))
+func (s *Server) PostEstate(c echo.Context) error {
+	ctx := c.Request().Context()
+
+	req := new(generated.PostEstateJSONRequestBody)
+	if err := c.Bind(req); err != nil {
+		return BadRequestError(c, err)
 	}
 
-	if err := est.Validate(); err != nil {
-		return ctx.JSON(400, err.Error())
+	body := PostEstateJSONRequestBody{
+		generated.PostEstateJSONRequestBody(*req),
 	}
-	return nil
+
+	if err := body.Validate(); err != nil {
+		return BadRequestError(c, err)
+	}
+
+	var res generated.UuidResponse
+	var input repository.CreateEstateInput = repository.CreateEstateInput{
+		Length: req.Length,
+		Width:  req.Width,
+	}
+	uuid, err := s.Repository.InsertEstate(ctx, input)
+	if err != nil {
+		return InternalServerError(c, err)
+	}
+
+	res.Uuid = uuid.Uuid
+	return SuccessCreateResponse(c, res)
 }

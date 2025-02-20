@@ -26,3 +26,5 @@ go.work
 generated
 
 .vscode
+
+*__debug_bin*

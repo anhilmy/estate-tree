@@ -40,7 +40,7 @@ $(INTERFACES_GEN_GO_FILES): %.mock.gen.go: %.go
 
 
 
-DATABASE_URL := postgresql://estate:t4O46dr9ziLH@localhost:5432/estate_tree
+DATABASE_URL := postgresql://estate:t4O46dr9ziLH@localhost:5432/estate_tree?sslmode=disable
 
 run:
 	DATABASE_URL=$(DATABASE_URL) go run cmd/main.go

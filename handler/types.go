@@ -1,6 +1,11 @@
 package handler
 
-import "github.com/SawitProRecruitment/UserService/generated"
+import (
+	"errors"
+
+	"github.com/SawitProRecruitment/UserService/generated"
+	"github.com/labstack/echo/v4"
+)
 
 type ErrorResponse struct {
 	generated.ErrorResponse
@@ -10,23 +15,44 @@ func (e ErrorResponse) Error() string {
 	return e.Message
 }
 
-func BadRequestError(msg string) ErrorResponse {
-	return ErrorResponse{
+func BadRequestError(ctx echo.Context, err error) error {
+	return ctx.JSON(400, ErrorResponse{
 		generated.ErrorResponse{
-			Message: msg,
+			Message: err.Error(),
 		},
-	}
+	})
 }
 
-type PostEstateJSONRequestBody generated.PostEstateJSONRequestBody
+func InternalServerError(ctx echo.Context, err error) error {
+	return ctx.JSON(500, ErrorResponse{
+		generated.ErrorResponse{
+			Message: err.Error(),
+		},
+	})
+}
+
+type SuccessResponse struct {
+}
+
+func SuccessCreateResponse(ctx echo.Context, data interface{}) error {
+	return ctx.JSON(201, data)
+}
+
+func SuccessGetResponse(ctx echo.Context, data interface{}) error {
+	return ctx.JSON(200, data)
+}
+
+type PostEstateJSONRequestBody struct {
+	generated.PostEstateJSONRequestBody
+}
 
 func (req PostEstateJSONRequestBody) Validate() error {
 	if req.Width < 1 || req.Width > 50000 {
-		return BadRequestError("width is not a valid number")
+		return errors.New("width is not a valid number")
 	}
 
 	if req.Length < 1 || req.Length > 50000 {
-		return BadRequestError("length is not a valid number")
+		return errors.New("length is not a valid number")
 	}
 
 	return nil
