@@ -34,6 +34,21 @@ func (m *MockRepositoryInterface) EXPECT() *MockRepositoryInterfaceMockRecorder 
 	return m.recorder
 }
 
+// GetAllTree mocks base method.
+func (m *MockRepositoryInterface) GetAllTree(ctx context.Context, input UuidInput) ([]TreeModel, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAllTree", ctx, input)
+	ret0, _ := ret[0].([]TreeModel)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetAllTree indicates an expected call of GetAllTree.
+func (mr *MockRepositoryInterfaceMockRecorder) GetAllTree(ctx, input interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllTree", reflect.TypeOf((*MockRepositoryInterface)(nil).GetAllTree), ctx, input)
+}
+
 // GetTestById mocks base method.
 func (m *MockRepositoryInterface) GetTestById(ctx context.Context, input GetTestByIdInput) (GetTestByIdOutput, error) {
 	m.ctrl.T.Helper()
@@ -47,4 +62,34 @@ func (m *MockRepositoryInterface) GetTestById(ctx context.Context, input GetTest
 func (mr *MockRepositoryInterfaceMockRecorder) GetTestById(ctx, input interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTestById", reflect.TypeOf((*MockRepositoryInterface)(nil).GetTestById), ctx, input)
+}
+
+// InsertEstate mocks base method.
+func (m *MockRepositoryInterface) InsertEstate(ctx context.Context, input CreateEstateInput) (UuidOutput, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "InsertEstate", ctx, input)
+	ret0, _ := ret[0].(UuidOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// InsertEstate indicates an expected call of InsertEstate.
+func (mr *MockRepositoryInterfaceMockRecorder) InsertEstate(ctx, input interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "InsertEstate", reflect.TypeOf((*MockRepositoryInterface)(nil).InsertEstate), ctx, input)
+}
+
+// InsertTree mocks base method.
+func (m *MockRepositoryInterface) InsertTree(ctx context.Context, input CreateTreeInput) (UuidOutput, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "InsertTree", ctx, input)
+	ret0, _ := ret[0].(UuidOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// InsertTree indicates an expected call of InsertTree.
+func (mr *MockRepositoryInterfaceMockRecorder) InsertTree(ctx, input interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "InsertTree", reflect.TypeOf((*MockRepositoryInterface)(nil).InsertTree), ctx, input)
 }
