@@ -10,15 +10,19 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 CREATE TABLE estate (
 	id serial PRIMARY KEY,
-	uuid uuid NOT NULL default uuid_generate_v4(),
+	uuid uuid NOT NULL unique default uuid_generate_v4(),
 	length int NOT NULL,
 	width int NOT NULL
 );
 
 CREATE TABLE tree (
 	id serial PRIMARY KEY,
-	uuid uuid NOT NULL default uuid_generate_v4(),
+	uuid uuid NOT NULL unique default uuid_generate_v4(),
 	x_axis  int not null,
 	y_axis int not null,
-	height int not null
+	height int not null,
+	estate_uuid uuid not null,
+	constaints fk_tree_estate
+		foreign key (estate_uuid)
+		references estate (uuid)
 );
