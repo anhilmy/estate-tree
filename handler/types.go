@@ -57,3 +57,15 @@ func (req PostEstateJSONRequestBody) Validate() error {
 
 	return nil
 }
+
+type PostEstateIdTreeJSONRequestBody struct {
+	generated.PostEstateIdTreeJSONRequestBody
+}
+
+func (req PostEstateIdTreeJSONRequestBody) Validate() error {
+	if req.Height < 1 || req.Height > 30 {
+		return errors.New("height is not a valid number")
+	}
+
+	return nil
+}

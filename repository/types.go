@@ -22,9 +22,10 @@ type UuidOutput struct {
 }
 
 type CreateTreeInput struct {
-	X      int
-	Y      int
-	Height int
+	X        int
+	Y        int
+	Height   int
+	EstateId string
 }
 
 type TreeModel struct {

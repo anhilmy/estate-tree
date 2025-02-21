@@ -25,6 +25,10 @@ func (r *Repository) InsertEstate(ctx context.Context, input CreateEstateInput) 
 }
 
 // InsertTree implements RepositoryInterface.
-func (*Repository) InsertTree(ctx context.Context, input CreateTreeInput) (output UuidOutput, err error) {
-	panic("unimplemented")
+func (r *Repository) InsertTree(ctx context.Context, input CreateTreeInput) (output UuidOutput, err error) {
+	err = r.Db.QueryRowContext(ctx, "INSERT INTO tree (x_axis, y_axis, height, estate_uuid) VALUES ($1, $2, $3, $4) RETURNING uuid", input.X, input.Y, input.Height, input.EstateId).Scan(&output.Uuid)
+	if err != nil {
+		return
+	}
+	return
 }

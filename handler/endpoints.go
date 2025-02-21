@@ -35,3 +35,37 @@ func (s *Server) PostEstate(c echo.Context) error {
 	res.Uuid = uuid.Uuid
 	return SuccessCreateResponse(c, res)
 }
+
+// PostEstateIdTree implements generated.ServerInterface.
+func (s *Server) PostEstateIdTree(c echo.Context, id string) error {
+	ctx := c.Request().Context()
+
+	req := new(generated.PostEstateIdTreeJSONRequestBody)
+	if err := c.Bind(req); err != nil {
+		return BadRequestError(c, err)
+	}
+
+	body := PostEstateIdTreeJSONRequestBody{
+		generated.PostEstateIdTreeJSONRequestBody(*req),
+	}
+
+	if err := body.Validate(); err != nil {
+		return BadRequestError(c, err)
+	}
+
+	var res generated.UuidResponse
+	var input repository.CreateTreeInput = repository.CreateTreeInput{
+		X:        req.X,
+		Y:        req.Y,
+		Height:   req.Height,
+		EstateId: id,
+	}
+
+	uuid, err := s.Repository.InsertTree(ctx, input)
+	if err != nil {
+		return InternalServerError(c, err)
+	}
+
+	res.Uuid = uuid.Uuid
+	return SuccessCreateResponse(c, res)
+}
