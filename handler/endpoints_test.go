@@ -272,3 +272,124 @@ func TestPostEstateIdTree(t *testing.T) {
 		})
 	}
 }
+
+func TestGetEstateIdStat(t *testing.T) {
+	mockCtrl := gomock.NewController(t)
+	defer mockCtrl.Finish()
+
+	mockRepo := repository.NewMockRepositoryInterface(mockCtrl)
+
+	estateInput := repository.UuidInput{
+		Uuid: "123456ESTATE",
+	}
+	estateOutput := repository.EstateModel{
+		Uuid:   "123456ESTATE",
+		Length: 30,
+		Width:  200,
+	}
+	statOutput := repository.EstateStatsOutput{
+		Count:  15,
+		Max:    39,
+		Min:    12,
+		Median: 23,
+	}
+
+	testcase := []struct {
+		name       string
+		res        generated.EstateStatResponse
+		estateIn   repository.UuidInput
+		estateOut  repository.EstateModel
+		estateErr  error
+		statOutput repository.EstateStatsOutput
+		statError  error
+		err        error //resposne error
+		status     int
+	}{
+		{
+			name: "normal",
+			res: generated.EstateStatResponse{
+				Count:  statOutput.Count,
+				Max:    statOutput.Max,
+				Median: statOutput.Median,
+				Min:    statOutput.Min,
+			},
+			estateIn:   estateInput,
+			estateOut:  estateOutput,
+			estateErr:  nil,
+			statOutput: statOutput,
+			statError:  nil,
+			err:        nil,
+			status:     200,
+		},
+		{
+			name:       "no estate",
+			res:        generated.EstateStatResponse{},
+			estateIn:   estateInput,
+			estateOut:  repository.EstateModel{},
+			estateErr:  sql.ErrNoRows,
+			statOutput: repository.EstateStatsOutput{},
+			statError:  nil,
+			err:        nil,
+			status:     404,
+		},
+		{
+			name: "no tree",
+			res: generated.EstateStatResponse{
+				Count:  0,
+				Max:    0,
+				Median: 0,
+				Min:    0,
+			},
+			estateIn:  estateInput,
+			estateOut: estateOutput,
+			estateErr: nil,
+			statOutput: repository.EstateStatsOutput{
+				Count:  0,
+				Max:    0,
+				Min:    0,
+				Median: 0,
+			},
+			statError: nil,
+			err:       nil,
+			status:    200,
+		},
+	}
+
+	e := echo.New()
+	for _, tc := range testcase {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			mockRepo.EXPECT().GetEstate(gomock.Any(), tc.estateIn).Return(tc.estateOut, tc.estateErr)
+			stat := mockRepo.EXPECT().GetEstateStats(gomock.Any(), tc.estateIn).Return(tc.statOutput, tc.statError)
+
+			if tc.estateErr != nil {
+				stat.Times(0)
+			}
+
+			req := httptest.NewRequest(http.MethodPost, "/estate/1234/stats", nil)
+			req.Header.Set("Content-Type", "application/json")
+
+			rec := httptest.NewRecorder()
+			c := e.NewContext(req, rec)
+
+			server := NewServer(NewServerOptions{
+				Repository: mockRepo,
+			})
+			err := server.GetEstateIdStats(c, tc.estateIn.Uuid)
+			if err != nil {
+				t.Fail()
+			}
+
+			assert.Equal(t, tc.status, rec.Code)
+			if tc.err != nil {
+				var response generated.ErrorResponse
+				json.Unmarshal(rec.Body.Bytes(), &response)
+				assert.Equal(t, tc.err.Error(), response.Message)
+			} else {
+				var response generated.EstateStatResponse
+				json.Unmarshal(rec.Body.Bytes(), &response)
+				assert.Equal(t, tc.res, response)
+			}
+		})
+	}
+}

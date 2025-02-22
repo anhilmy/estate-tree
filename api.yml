@@ -71,6 +71,35 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+        404:
+          description: Not found estate is not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /estate/{id}/stats:
+    get:
+      summary: GET to max, min, median, total of all tree on estate
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: uuid of the estate
+      responses:
+        200:
+          description: Success calculating stat of estate
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EstateStatResponse"
+        404:
+          description: Estate is not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 
 components:
   schemas:
@@ -130,4 +159,20 @@ components:
         y:
           type: integer
         height:
+          type: integer
+    EstateStatResponse:
+      type: object
+      required:
+        - count
+        - max
+        - min
+        - median
+      properties:
+        count:
+          type: integer
+        max:
+          type: integer
+        min:
+          type: integer
+        median:
           type: integer

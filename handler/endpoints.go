@@ -84,3 +84,33 @@ func (s *Server) PostEstateIdTree(c echo.Context, id string) error {
 	res.Uuid = uuid.Uuid
 	return SuccessCreateResponse(c, res)
 }
+
+// GetEstateIdStats implements generated.ServerInterface.
+func (s *Server) GetEstateIdStats(c echo.Context, id string) error {
+	ctx := c.Request().Context()
+
+	_, err := s.Repository.GetEstate(ctx, repository.UuidInput{
+		Uuid: id,
+	})
+	if err == sql.ErrNoRows {
+		err = errors.New("estate not found")
+		return NotFoundError(c, err)
+	} else if err != nil {
+		return InternalServerError(c, err)
+	}
+
+	stat, err := s.Repository.GetEstateStats(ctx, repository.UuidInput{
+		Uuid: id,
+	})
+	if err != nil {
+		return InternalServerError(c, err)
+	}
+
+	var res generated.EstateStatResponse = generated.EstateStatResponse{
+		Count:  stat.Count,
+		Max:    stat.Max,
+		Median: stat.Median,
+		Min:    stat.Min,
+	}
+	return SuccessGetResponse(c, res)
+}
