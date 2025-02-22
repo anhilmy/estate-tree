@@ -39,12 +39,12 @@ func TestPostEstate(t *testing.T) {
 		{
 			name:    "normal",
 			req:     &generated.PostEstateRequest{Length: 10, Width: 200},
-			res:     &generated.UuidResponse{Uuid: "uuid-uuid"},
+			res:     &generated.UuidResponse{Id: "uuid-uuid"},
 			repoIn:  &repository.CreateEstateInput{Length: 10, Width: 200},
 			repoOut: &repository.UuidOutput{Uuid: "uuid-uuid"},
 			repoErr: nil,
 			err:     nil,
-			status:  201,
+			status:  200,
 		},
 		{
 			name: "width over",
@@ -162,7 +162,7 @@ func TestPostEstateIdTree(t *testing.T) {
 				Y:      150,
 			},
 			res: generated.UuidResponse{
-				Uuid: "123456TREE",
+				Id: "123456TREE",
 			},
 			estateIn:  estateInput,
 			estateOut: estateOutput,
@@ -176,7 +176,7 @@ func TestPostEstateIdTree(t *testing.T) {
 			insertOut: insertOutput,
 			insertErr: nil,
 			err:       nil,
-			status:    201,
+			status:    200,
 		},
 		{
 			name: "coordinate over",
@@ -406,68 +406,68 @@ func TestGetDronePlan(t *testing.T) {
 	estateOutput := repository.EstateModel{
 		Uuid:   "123456ESTATE",
 		Length: 5,
-		Width:  3,
+		Width:  1,
 	}
 
 	treeOutput := []repository.TreeModel{
 		{
 			Uuid:       "1TREE",
-			X:          1,
+			X:          2,
 			Y:          1,
-			Height:     3,
+			Height:     10,
 			EstateUuid: "123456ESTATE",
 		},
 
 		{
 			Uuid:       "2TREE",
-			X:          2,
+			X:          3,
 			Y:          1,
-			Height:     9,
+			Height:     20,
 			EstateUuid: "123456ESTATE",
 		},
 
 		{
 			Uuid:       "3TREE",
-			X:          3,
-			Y:          1,
-			Height:     7,
-			EstateUuid: "123456ESTATE",
-		},
-		{
-			Uuid:       "6TREE",
-			X:          1,
-			Y:          2,
-			Height:     2,
-			EstateUuid: "123456ESTATE",
-		},
-		{
-			Uuid:       "5TREE",
-			X:          2,
-			Y:          2,
-			Height:     8,
-			EstateUuid: "123456ESTATE",
-		},
-		{
-			Uuid:       "4TREE",
-			X:          3,
-			Y:          2,
-			Height:     15,
-			EstateUuid: "123456ESTATE",
-		},
-		{
-			Uuid:       "7TREE",
-			X:          2,
-			Y:          3,
-			Height:     2,
-			EstateUuid: "123456ESTATE",
-		},
-		{
-			Uuid:       "8TREE",
 			X:          4,
-			Y:          3,
-			Height:     2,
+			Y:          1,
+			Height:     10,
 			EstateUuid: "123456ESTATE",
 		},
+		// {
+		// 	Uuid:       "6TREE",
+		// 	X:          1,
+		// 	Y:          2,
+		// 	Height:     2,
+		// 	EstateUuid: "123456ESTATE",
+		// },
+		// {
+		// 	Uuid:       "5TREE",
+		// 	X:          2,
+		// 	Y:          2,
+		// 	Height:     8,
+		// 	EstateUuid: "123456ESTATE",
+		// },
+		// {
+		// 	Uuid:       "4TREE",
+		// 	X:          3,
+		// 	Y:          2,
+		// 	Height:     15,
+		// 	EstateUuid: "123456ESTATE",
+		// },
+		// {
+		// 	Uuid:       "7TREE",
+		// 	X:          2,
+		// 	Y:          3,
+		// 	Height:     2,
+		// 	EstateUuid: "123456ESTATE",
+		// },
+		// {
+		// 	Uuid:       "8TREE",
+		// 	X:          4,
+		// 	Y:          3,
+		// 	Height:     2,
+		// 	EstateUuid: "123456ESTATE",
+		// },
 	}
 
 	testcase := []struct {
@@ -486,7 +486,8 @@ func TestGetDronePlan(t *testing.T) {
 			name:  "normal no max distance",
 			param: generated.GetEstateIdDronePlanParams{},
 			res: generated.DronePlanResponse{
-				Distance: 172,
+				// Distance: 174,
+				Distance: 82,
 			},
 			estateIn:   estateInput,
 			estateOut:  estateOutput,

@@ -3,11 +3,19 @@ package handler
 import (
 	"database/sql"
 	"errors"
+	"fmt"
+	"net/http"
 
 	"github.com/SawitProRecruitment/UserService/generated"
 	"github.com/SawitProRecruitment/UserService/repository"
 	"github.com/labstack/echo/v4"
 )
+
+func (s *Server) GetHello(ctx echo.Context, params generated.GetHelloParams) error {
+	var resp generated.HelloResponse
+	resp.Message = fmt.Sprintf("Hello User %d", params.Id)
+	return ctx.JSON(http.StatusOK, resp)
+}
 
 func (s *Server) PostEstate(c echo.Context) error {
 	ctx := c.Request().Context()
@@ -35,7 +43,7 @@ func (s *Server) PostEstate(c echo.Context) error {
 		return InternalServerError(c, err)
 	}
 
-	res.Uuid = uuid.Uuid
+	res.Id = uuid.Uuid
 	return SuccessCreateResponse(c, res)
 }
 
@@ -81,7 +89,7 @@ func (s *Server) PostEstateIdTree(c echo.Context, id string) error {
 		return InternalServerError(c, err)
 	}
 
-	res.Uuid = uuid.Uuid
+	res.Id = uuid.Uuid
 	return SuccessCreateResponse(c, res)
 }
 
@@ -165,12 +173,15 @@ func (s *Server) GetEstateIdDronePlan(c echo.Context, id string, params generate
 		} else {
 			deltaHeight = currHeight.Height - lastHeight.Height
 		}
+		fmt.Println(deltaHeight)
 		allDeltaHeight = allDeltaHeight + deltaHeight
 		// max distance is not 0 && rest is initiated && current
 		lastHeight = currHeight
 	}
+	allDeltaHeight += lastHeight.Height
 
-	res.Distance = allDeltaHeight + ((estate.Length * estate.Width * 10) - 10)
+	// +2 from drone need fly above 1 meters, calculating on takeoff and on landing
+	res.Distance = allDeltaHeight + ((estate.Length * estate.Width * 10) - 10) + 2
 
 	return SuccessGetResponse(c, res)
 }

@@ -42,7 +42,7 @@ type SuccessResponse struct {
 }
 
 func SuccessCreateResponse(ctx echo.Context, data interface{}) error {
-	return ctx.JSON(201, data)
+	return ctx.JSON(200, data)
 }
 
 func SuccessGetResponse(ctx echo.Context, data interface{}) error {
@@ -72,6 +72,10 @@ type PostEstateIdTreeJSONRequestBody struct {
 func (req PostEstateIdTreeJSONRequestBody) Validate() error {
 	if req.Height < 1 || req.Height > 30 {
 		return errors.New("height is not a valid number")
+	}
+
+	if req.X < 1 || req.Y < 1 {
+		return errors.New("coordinates is out of maps bound")
 	}
 
 	return nil

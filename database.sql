@@ -22,7 +22,7 @@ CREATE TABLE tree (
 	y_axis int not null,
 	height int not null,
 	estate_uuid uuid not null,
-	constaints fk_tree_estate
+	constraint fk_tree_estate
 		foreign key (estate_uuid)
 		references estate (uuid)
 );
