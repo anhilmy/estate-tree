@@ -15,7 +15,7 @@ type NewRepositoryOptions struct {
 	Dsn string
 }
 
-func NewRepository(opts NewRepositoryOptions) *Repository {
+func NewRepository(opts NewRepositoryOptions) RepositoryInterface {
 	db, err := sql.Open("postgres", opts.Dsn)
 	if err != nil {
 		panic(err)
