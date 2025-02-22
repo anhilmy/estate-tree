@@ -65,3 +65,8 @@ func (r *Repository) GetEstate(ctx context.Context, input UuidInput) (output Est
 	}
 	return
 }
+
+func (r *Repository) GetTree(ctx context.Context, input GetTreeByCoordinateInput) (output TreeModel, err error) {
+	err = r.Db.QueryRowContext(ctx, "SELECT uuid, x_axis, y_axis, height, estate_uuid FROM tree where x_axis = $1 and y_axis = $2 and estate_uuid = $3 order by y_axis, x_axis", input.X, input.Y, input.EstateUuid).Scan(&output.Uuid, &output.X, &output.Y, &output.Height, &output.EstateUuid)
+	return
+}

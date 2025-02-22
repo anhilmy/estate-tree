@@ -322,5 +322,35 @@ func TestGetDetailEstateNotFound(t *testing.T) {
 	if err := mock.ExpectationsWereMet(); err != nil {
 		t.Error(err)
 	}
+}
 
+func TestGetTreeByCoordinate(t *testing.T) {
+	repo, mock, err := Setup(t)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer repo.Db.Close()
+
+	uuidExp := "1234"
+	input := repository.GetTreeByCoordinateInput{
+		X:          15,
+		Y:          20,
+		EstateUuid: uuidExp,
+	}
+	rows := sqlmock.NewRows([]string{"uuid", "x_axis", "y_axis", "height", "estate_uuid"})
+	rows.AddRow("1234TREE", 15, 20, 15, "1234")
+
+	mock.ExpectQuery(`SELECT.*?FROM tree where.*?x_axis = \$1 and y_axis = \$2 and estate_uuid = \$3`).
+		WithArgs(input.X, input.Y, input.EstateUuid).
+		WillReturnRows(rows)
+
+	tree, err := repo.GetTree(context.Background(), input)
+	assert.Nil(t, err)
+	assert.Equal(t, input.X, tree.X)
+	assert.Equal(t, input.Y, tree.Y)
+	assert.Equal(t, input.EstateUuid, tree.EstateUuid)
+
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Error(err)
+	}
 }

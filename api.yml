@@ -72,7 +72,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
         404:
-          description: Not found estate is not found
+          description: Estate is not found
           content:
             application/json:
               schema:
@@ -100,7 +100,40 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-
+  /estate/{id}/drone-plan:
+    get:
+      summary: calculate total distance needed to fly
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: uuid of estate
+        - in: query
+          name: max_distance
+          schema:
+            type: integer
+          description: max flying distance of the drone
+      responses:
+        200:
+          description: success on calculating total distance
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DronePlanResponse"
+        400:
+          description: Bad request on body request or coordinate already taken
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        404:
+          description: Estate is not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 components:
   schemas:
     EstateModel:
@@ -175,4 +208,23 @@ components:
         min:
           type: integer
         median:
+          type: integer
+    DronePlanResponse:
+      type: object
+      required:
+        - distance
+      properties:
+        distance:
+          type: integer
+        rest:
+          $ref: "#/components/schemas/DronePlanResponseRest"
+    DronePlanResponseRest:
+      type: object
+      required:
+        - x
+        - y
+      properties:
+        x:
+          type: integer
+        y:
           type: integer

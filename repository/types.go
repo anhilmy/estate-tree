@@ -48,3 +48,9 @@ type EstateModel struct {
 	Length int
 	Width  int
 }
+
+type GetTreeByCoordinateInput struct {
+	X          int
+	Y          int
+	EstateUuid string
+}

@@ -393,3 +393,164 @@ func TestGetEstateIdStat(t *testing.T) {
 		})
 	}
 }
+
+func TestGetDronePlan(t *testing.T) {
+	mockCtrl := gomock.NewController(t)
+	defer mockCtrl.Finish()
+
+	mockRepo := repository.NewMockRepositoryInterface(mockCtrl)
+
+	estateInput := repository.UuidInput{
+		Uuid: "123456ESTATE",
+	}
+	estateOutput := repository.EstateModel{
+		Uuid:   "123456ESTATE",
+		Length: 5,
+		Width:  3,
+	}
+
+	treeOutput := []repository.TreeModel{
+		{
+			Uuid:       "1TREE",
+			X:          1,
+			Y:          1,
+			Height:     3,
+			EstateUuid: "123456ESTATE",
+		},
+
+		{
+			Uuid:       "2TREE",
+			X:          2,
+			Y:          1,
+			Height:     9,
+			EstateUuid: "123456ESTATE",
+		},
+
+		{
+			Uuid:       "3TREE",
+			X:          3,
+			Y:          1,
+			Height:     7,
+			EstateUuid: "123456ESTATE",
+		},
+		{
+			Uuid:       "6TREE",
+			X:          1,
+			Y:          2,
+			Height:     2,
+			EstateUuid: "123456ESTATE",
+		},
+		{
+			Uuid:       "5TREE",
+			X:          2,
+			Y:          2,
+			Height:     8,
+			EstateUuid: "123456ESTATE",
+		},
+		{
+			Uuid:       "4TREE",
+			X:          3,
+			Y:          2,
+			Height:     15,
+			EstateUuid: "123456ESTATE",
+		},
+		{
+			Uuid:       "7TREE",
+			X:          2,
+			Y:          3,
+			Height:     2,
+			EstateUuid: "123456ESTATE",
+		},
+		{
+			Uuid:       "8TREE",
+			X:          4,
+			Y:          3,
+			Height:     2,
+			EstateUuid: "123456ESTATE",
+		},
+	}
+
+	testcase := []struct {
+		name       string
+		param      generated.GetEstateIdDronePlanParams
+		res        generated.DronePlanResponse
+		estateIn   repository.UuidInput
+		estateOut  repository.EstateModel
+		estateErr  error
+		treeOutput []repository.TreeModel
+		treeError  error
+		err        error //resposne error
+		status     int
+	}{
+		{
+			name:  "normal no max distance",
+			param: generated.GetEstateIdDronePlanParams{},
+			res: generated.DronePlanResponse{
+				Distance: 172,
+			},
+			estateIn:   estateInput,
+			estateOut:  estateOutput,
+			estateErr:  nil,
+			treeOutput: treeOutput,
+			treeError:  nil,
+			err:        nil,
+			status:     200,
+		},
+		// {
+		// 	name: "normal with max distance",
+		// },
+		{
+			name:       "estate not found",
+			param:      generated.GetEstateIdDronePlanParams{},
+			res:        generated.DronePlanResponse{},
+			estateIn:   estateInput,
+			estateOut:  repository.EstateModel{},
+			estateErr:  sql.ErrNoRows,
+			treeOutput: nil,
+			treeError:  nil,
+			err:        errors.New("estate not found"),
+			status:     404,
+		},
+		// {
+		// 	name: "max distance is 1",
+		// },
+	}
+
+	e := echo.New()
+	for _, tc := range testcase {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			mockRepo.EXPECT().GetEstate(gomock.Any(), tc.estateIn).Return(tc.estateOut, tc.estateErr)
+			tree := mockRepo.EXPECT().GetAllTree(gomock.Any(), tc.estateIn).Return(tc.treeOutput, tc.treeError)
+
+			if tc.estateErr != nil {
+				tree.Times(0)
+			}
+
+			req := httptest.NewRequest(http.MethodPost, "/estate/1234/drone-plan", nil)
+			req.Header.Set("Content-Type", "application/json")
+
+			rec := httptest.NewRecorder()
+			c := e.NewContext(req, rec)
+
+			server := NewServer(NewServerOptions{
+				Repository: mockRepo,
+			})
+			err := server.GetEstateIdDronePlan(c, tc.estateIn.Uuid, tc.param)
+			if err != nil {
+				t.Fail()
+			}
+
+			assert.Equal(t, tc.status, rec.Code)
+			if tc.err != nil {
+				var response generated.ErrorResponse
+				json.Unmarshal(rec.Body.Bytes(), &response)
+				assert.Equal(t, tc.err.Error(), response.Message)
+			} else {
+				var response generated.DronePlanResponse
+				json.Unmarshal(rec.Body.Bytes(), &response)
+				assert.Equal(t, tc.res, response)
+			}
+		})
+	}
+}

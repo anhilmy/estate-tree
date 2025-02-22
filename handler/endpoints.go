@@ -114,3 +114,63 @@ func (s *Server) GetEstateIdStats(c echo.Context, id string) error {
 	}
 	return SuccessGetResponse(c, res)
 }
+
+// GetEstateIdDronePlan implements generated.ServerInterface.
+func (s *Server) GetEstateIdDronePlan(c echo.Context, id string, params generated.GetEstateIdDronePlanParams) error {
+	ctx := c.Request().Context()
+
+	estate, err := s.Repository.GetEstate(ctx, repository.UuidInput{
+		Uuid: id,
+	})
+	if err == sql.ErrNoRows {
+		err = errors.New("estate not found")
+		return NotFoundError(c, err)
+	} else if err != nil {
+		return InternalServerError(c, err)
+	}
+
+	var res generated.DronePlanResponse
+	var input repository.UuidInput = repository.UuidInput{
+		Uuid: id,
+	}
+
+	allTree, err := s.Repository.GetAllTree(ctx, input)
+	if err != nil {
+		return InternalServerError(c, err)
+	}
+
+	queue := make([]repository.TreeModel, 0)
+	reversedQueue := make([]repository.TreeModel, 0) // will be always inserted from index 0
+
+	for _, tree := range allTree {
+		if tree.Y%2 == 0 {
+			reversedQueue = append([]repository.TreeModel{tree}, reversedQueue...)
+		} else {
+			if len(reversedQueue) > 0 {
+				queue = append(queue, reversedQueue...)
+				reversedQueue = make([]repository.TreeModel, 0)
+			}
+			queue = append(queue, tree)
+		}
+	}
+
+	allDeltaHeight := 0
+	var lastHeight repository.TreeModel = repository.TreeModel{}
+	// rest := generated.DronePlanResponseRest{}
+
+	for _, currHeight := range queue {
+		deltaHeight := 0
+		if lastHeight.Height > currHeight.Height {
+			deltaHeight = lastHeight.Height - currHeight.Height
+		} else {
+			deltaHeight = currHeight.Height - lastHeight.Height
+		}
+		allDeltaHeight = allDeltaHeight + deltaHeight
+		// max distance is not 0 && rest is initiated && current
+		lastHeight = currHeight
+	}
+
+	res.Distance = allDeltaHeight + ((estate.Length * estate.Width * 10) - 10)
+
+	return SuccessGetResponse(c, res)
+}

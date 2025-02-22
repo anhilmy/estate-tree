@@ -10,6 +10,7 @@ type RepositoryInterface interface {
 	InsertEstate(ctx context.Context, input CreateEstateInput) (output UuidOutput, err error)
 	InsertTree(ctx context.Context, input CreateTreeInput) (output UuidOutput, err error)
 	GetAllTree(ctx context.Context, input UuidInput) (output []TreeModel, err error)
+	GetTree(ctx context.Context, input GetTreeByCoordinateInput) (output TreeModel, err error)
 	GetEstateStats(ctx context.Context, input UuidInput) (output EstateStatsOutput, err error)
 	GetEstate(ctx context.Context, input UuidInput) (output EstateModel, err error)
 }
