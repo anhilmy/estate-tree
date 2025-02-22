@@ -35,3 +35,16 @@ type TreeModel struct {
 	Height     int
 	EstateUuid string
 }
+
+type EstateStatsOutput struct {
+	Count  int
+	Max    int
+	Min    int
+	Median int
+}
+
+type EstateModel struct {
+	Uuid   string
+	Length int
+	Width  int
+}
