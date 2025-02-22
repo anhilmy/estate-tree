@@ -31,6 +31,13 @@ func InternalServerError(ctx echo.Context, err error) error {
 	})
 }
 
+func NotFoundError(ctx echo.Context, err error) error {
+	return ctx.JSON(404, ErrorResponse{
+		generated.ErrorResponse{
+			Message: err.Error(),
+		},
+	})
+}
 type SuccessResponse struct {
 }
 

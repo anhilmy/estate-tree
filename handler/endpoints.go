@@ -1,6 +1,9 @@
 package handler
 
 import (
+	"database/sql"
+	"errors"
+
 	"github.com/SawitProRecruitment/UserService/generated"
 	"github.com/SawitProRecruitment/UserService/repository"
 	"github.com/labstack/echo/v4"
@@ -51,6 +54,18 @@ func (s *Server) PostEstateIdTree(c echo.Context, id string) error {
 
 	if err := body.Validate(); err != nil {
 		return BadRequestError(c, err)
+	}
+
+	estate, err := s.Repository.GetEstate(ctx, repository.UuidInput{
+		Uuid: id,
+	})
+	if err == sql.ErrNoRows {
+		err = errors.New("estate not found")
+		return NotFoundError(c, err)
+	} else if err != nil {
+		return InternalServerError(c, err)
+	} else if estate.Length < req.X || estate.Width < req.Y {
+		return BadRequestError(c, errors.New("tree location cannot outside the estate"))
 	}
 
 	var res generated.UuidResponse
